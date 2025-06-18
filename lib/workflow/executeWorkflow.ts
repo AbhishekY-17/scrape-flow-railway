@@ -40,8 +40,14 @@ export async function ExecuteWorkflow(executionId: string) {
     let executionFailed = false;
     for (const phase of execution.phases) {
         await waitFor(1000);
-        // TODO: credits comsumed
-        const phaseExecution = await executeWorkflowPhase(phase, environment, edges);
+
+        const phaseExecution = await executeWorkflowPhase(
+            phase,
+            environment,
+            edges,
+            execution.userId,
+        );
+        creditsConsumed += phaseExecution.creditsConsumed;
         if (!phaseExecution.success) {
             executionFailed = true;
             break;
@@ -133,6 +139,7 @@ async function executeWorkflowPhase(
     phase: ExecutionPhase, 
     environment: Environment,
     edges: Edge[],
+    userId: string,
 ) {
     const logCollector = createLogCollector();
     const startedAt = new Date();
@@ -153,19 +160,31 @@ async function executeWorkflowPhase(
         throw new Error(`Task type '${node.data.type}' is not registered in TaskRegistry`);
     }
     
-    const creditsRequired = task.credits;
-    console.log(`Executing phase ${phase.name} with ${creditsRequired} credits required`);    
+    // const creditsRequired = task.credits;
+    const creditsRequired = TaskRegistry[node.data.type as keyof typeof TaskRegistry].credits;
+    
+    let success = await decrementCredits(userId, creditsRequired, logCollector);
+    const creditsConsumed = success ? creditsRequired : 0;
 
-    // TODO: decrement user balance (with required credits)
+    if (success) {
+        // Execute the phase
+        success = await executePhase(phase, node, environment, logCollector);
+    } else {
 
-    const success = await executePhase(phase, node, environment, logCollector);
+    }
     
     const outputs = environment.phases[node.id].outputs;
-    await finalizePhase(phase.id, success, outputs, logCollector);
-    return { success };
+    await finalizePhase(phase.id, success, outputs, logCollector, creditsConsumed);
+    return { success, creditsConsumed };
 }
 
-async function finalizePhase(phaseId: string, success: boolean, outputs: any, logCollector: LogCollector) {
+async function finalizePhase(
+    phaseId: string, 
+    success: boolean, 
+    outputs: any, 
+    logCollector: LogCollector,
+    creditsConsumed: number
+    ) {
     const finalStatus = success
         ? ExecutionPhaseStatus.COMPLETED
         : ExecutionPhaseStatus.FAILED;
@@ -178,6 +197,7 @@ async function finalizePhase(phaseId: string, success: boolean, outputs: any, lo
             status: finalStatus,
             completedAt: new Date(),
             outputs: JSON.stringify(outputs),
+            creditsConsumed,
             logs: {
                 createMany: {
                     data: logCollector.getAll().map((log) => ({
@@ -268,3 +288,24 @@ async function cleanupEnvironment(environment: Environment) {
         .catch((err) => console.error("cannot close browser, reason:", err))
     }
 };
+
+async function decrementCredits(
+    userId: string,
+    amount: number,
+    logCollector: LogCollector
+) {
+    try {
+        await prisma.userBalance.update({
+            where: { userId, credits: { gte: amount } },
+            data: {
+                credits: {
+                    decrement: amount,
+                },
+            },
+        });
+        return true;
+    } catch (error) {
+        logCollector.error("insufficient credits");
+        return false;
+    }
+}

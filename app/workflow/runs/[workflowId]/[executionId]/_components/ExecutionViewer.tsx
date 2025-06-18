@@ -10,7 +10,7 @@ import { GetPhasesTotalCost } from '@/lib/helper/phases';
 import { ExecutionPhaseStatus, WorkflowExecutionStatus } from '@/types/workflow';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { CalendarIcon, CircleDashedIcon, ClockIcon, CoinsIcon, Loader2Icon, LucideIcon, WorkflowIcon } from 'lucide-react';
+import { CalendarIcon, CircleDashedIcon, ClockIcon, CoinsIcon, Divide, Loader2Icon, LucideIcon, WorkflowIcon } from 'lucide-react';
 import React, { ReactNode, useEffect, useState } from 'react'
 import {
     Card,
@@ -32,6 +32,7 @@ import {
 import { cn } from '@/lib/utils';
 import { LogLevel } from '@/types/log';
 import PhaseStatusBadge from './PhaseStatusBadge';
+import ReactCountUpWrapper from '@/components/ReactCountUpWrapper';
 
 type ExecutionData = Awaited<ReturnType<typeof GetWorkflowExecutionWithPhases>>;
 
@@ -87,7 +88,12 @@ function ExecutionViewer({ initialData }: {
                     <ExecutionLabel
                         icon={CircleDashedIcon}
                         label="Status"
-                        value={query.data?.status}
+                        value={
+                            <div className='font-semibold flex gap-2 items-center capitalize'>
+                                <PhaseStatusBadge status={query.data?.status as ExecutionPhaseStatus} />
+                                <span>{query.data?.status}</span>
+                            </div>
+                        }
                     />
                     {/*Started At Label*/}
                     <ExecutionLabel
@@ -116,7 +122,7 @@ function ExecutionViewer({ initialData }: {
                     <ExecutionLabel
                         icon={CoinsIcon}
                         label="Credits consumed"
-                        value={creditsConsumed}
+                        value={<ReactCountUpWrapper value={creditsConsumed} />}
                     />
                 </div>
                 <Separator />
@@ -175,7 +181,7 @@ function ExecutionViewer({ initialData }: {
                                     <CoinsIcon size={18} className="stroke-muted-foreground" />
                                     <span>Credits</span>
                                 </div>
-                                <span>TODO</span>
+                                <span>{phaseDetails.data.creditsConsumed}</span>
                             </Badge>
                             <Badge variant={"outline"} className="space-x-4">
                                 <div className="flex gap-1 items-center">
