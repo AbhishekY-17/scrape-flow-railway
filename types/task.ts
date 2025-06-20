@@ -3,6 +3,7 @@ export enum TaskType {
     FLOW_SCRAPE_NODE = "FlowScrapeNode",
     PAGE_TO_HTML = "PAGE_TO_HTML",
     EXTRACT_TEXT_FROM_ELEMENT = "EXTRACT_TEXT_FROM_ELEMENT",
+    FILL_INPUT = "FILL_INPUT",
 }
 
 export enum TaskParamType {
