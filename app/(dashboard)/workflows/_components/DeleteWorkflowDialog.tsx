@@ -72,3 +72,4 @@ function DeleteWorkflowDialog({ open, setOpen, workflowName, workflowId }: Props
 
 export default DeleteWorkflowDialog
   
+  

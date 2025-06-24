@@ -5,6 +5,11 @@ import { ExecutionEnvironment } from "@/types/executor";
 import { WorkflowTask } from "@/types/workflow";
 import { ExtractTextFromElementExecutor } from "./ExtractTextFromElementExecutor";
 import { FillInputExecutor } from "./FillInputExecutor";
+import { ClickElementExecutor } from "./ClickElementExecutor";
+import { WaitForElementTask } from "../task/WaitForElement";
+import { WaitForElementExecutor } from "./WaitForElementExecutor";
+import { DeliverViaWebhookExecutor } from "./DeliverViaWebhookExecutor";
+import { ExtractDataWithAiExecutor } from "./ExtractDataWithAiExecutor";
 
 type ExecutorFn<T extends WorkflowTask> = (environment: ExecutionEnvironment<T>) => Promise<boolean>;
 
@@ -17,5 +22,9 @@ export const ExecutorRegistry: RegistryType = {
     PAGE_TO_HTML: PageToHtmlExecutor,
     EXTRACT_TEXT_FROM_ELEMENT: ExtractTextFromElementExecutor,
     FILL_INPUT: FillInputExecutor,
+    CLICK_ELEMENT: ClickElementExecutor,
+    WAIT_FOR_ELEMENT: WaitForElementExecutor,
+    DELIVER_VIA_WEBHOOK: DeliverViaWebhookExecutor,
+    EXTRACT_DATA_WITH_AI: ExtractDataWithAiExecutor,
     FLOW_SCRAPE_NODE: () => Promise.resolve(true),
 };
