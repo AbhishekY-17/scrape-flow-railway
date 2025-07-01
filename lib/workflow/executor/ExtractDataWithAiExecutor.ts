@@ -71,11 +71,13 @@ export async function ExtractDataWithAiExecutor(
         environment.log.info(`Completition tokes: ${response.usage?.completion_tokens}`);
 
 
-        const result = response.choices[0].message?.content;
+        let result = response.choices[0].message?.content?.trim();
         if(!result) {
             environment.log.error("empty response from AI");
             return false;
         }
+
+        result = result.replace(/^```json/, "").replace(/^```/, "").replace(/```$/, "").trim();
         environment.setOutput("Extracted data", result);
         return true;
     } catch (error: any) {

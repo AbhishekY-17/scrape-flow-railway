@@ -39,7 +39,6 @@ export async function ExecuteWorkflow(executionId: string, nextRunAt?: Date) {
 
     let executionFailed = false;
     for (const phase of execution.phases) {
-        await waitFor(1000);
 
         const phaseExecution = await executeWorkflowPhase(
             phase,
