@@ -5,6 +5,8 @@ import { ExecutionPhaseStatus, WorkflowExecutionPlan, WorkflowExecutionStatus, W
 import { timingSafeEqual } from "crypto";
 import parser from "cron-parser";
 
+export const dynamic = 'force-dynamic';
+
 function isValidSecret(secret: string) {
     const API_SECRET = process.env.API_SECRET;
     if (!API_SECRET) return false;
