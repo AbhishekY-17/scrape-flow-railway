@@ -34,5 +34,5 @@ export const ExecutorRegistry: RegistryType = {
     ADD_PROPERTY_TO_JSON: AddPropertyToJsonExecutor,
     NAVIGATE_URL: NavigateUrlExecutor,
     SCROLL_TO_ELEMENT: ScrollToElementExecutor,
-    FLOW_SCRAPE_NODE: () => Promise.resolve(true),
+    [TaskType.FLOW_SCRAPE_NODE]: () => Promise.resolve(true),
 };
