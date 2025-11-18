@@ -6,6 +6,8 @@ import { timingSafeEqual } from "crypto";
 import parser from "cron-parser";
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
 function isValidSecret(secret: string) {
     const API_SECRET = process.env.API_SECRET;
